@@ -1,4 +1,4 @@
-import { CartItem } from "./entity/CartItemClass";
+import { Cart } from "./entity/CartClass";
 import { Product } from "./entity/ProductClass";
 const readline = require("readline");
 
@@ -15,7 +15,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-let cart: CartItem[] = [];
+const cart = new Cart();
 
 function showMenu() {
     console.log("\n=== CỬA HÀNG HOA QUẢ ===");
@@ -29,7 +29,7 @@ function askItem() {
     showMenu();
     rl.question("Chọn số thứ tự loại hoa quả: ", (itemInput: string) => {
         if (itemInput.trim().toLowerCase() === 'q') {
-            printBill();
+            cart.printBill();
             rl.close();
             return;
         }
@@ -47,30 +47,13 @@ function askItem() {
                 return;
             }
             const product = products[itemIdx];
-            // Kiểm tra nếu sản phẩm đã có trong giỏ thì cộng dồn số lượng
-            const existing = cart.find(item => item.product.name === product.name);
-            if (existing) {
-                existing.quantity += qty;
-            } else {
-                cart.push(new CartItem(product, qty));
-            }
+            cart.addItem(product, qty);
             console.log(`\nBạn đã chọn: ${product.name} (${qty} kg)`);
             console.log(`Đơn giá: ${product.price.toLocaleString()} VND/kg`);
             console.log(`Thành tiền: ${(product.price * qty).toLocaleString()} VND`);
             askItem();
         });
     });
-}
-
-function printBill() {
-    console.log("\n=== HÓA ĐƠN CỦA BẠN ===");
-    let total = 0;
-    cart.forEach((item, idx) => {
-        const itemTotal = item.getTotal();
-        total += itemTotal;
-        console.log(`${idx + 1}. ${item.product.name} - ${item.quantity} kg x ${item.product.price.toLocaleString()} VND = ${itemTotal.toLocaleString()} VND`);
-    });
-    console.log(`Tổng số tiền phải trả: ${total.toLocaleString()} VND`);
 }
 
 askItem();
